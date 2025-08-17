@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>会社の磨き屋 - 経営診断ナビゲーター</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .floating-animation {
+            animation: floating 6s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .step-card {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        
+        .step-card.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            height: 400px;
+            margin: 0 auto;
+        }
+        
+        .progress-gradient {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        }
+        
+        .input-field {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .input-field:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .analysis-card {
+            background: linear-gradient(135deg, #f6f9fc 0%, #ffffff 100%);
+            border-left: 4px solid #667eea;
+        }
+        
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        .recommendation-item {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border-left: 4px solid #f39c12;
+        }
+        
+        .priority-high {
+            background: linear-gradient(135deg, #ffe6e6 0%, #ffcccc 100%);
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .priority-medium {
+            background: linear-gradient(135deg, #e6f3ff 0%, #cce7ff 100%);
+            border-left: 4px solid #3498db;
+        }
+        
+        .milestone-timeline {
+            position: relative;
+        }
+        
+        .milestone-timeline::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #667eea, #764ba2);
+        }
+        
+        .milestone-item {
+            position: relative;
+            padding-left: 60px;
+            margin-bottom: 30px;
+        }
+        
+        .milestone-item::before {
+            content: '';
+            position: absolute;
+            left: 12px;
+            top: 8px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #667eea;
+            border: 4px solid white;
+            box-shadow: 0 0 0 2px #667eea;
+        }
+        
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50">
+    <!-- Hero Section -->
+    <section id="hero" class="section active">
+        <div class="gradient-bg min-h-screen flex items-center justify-center relative overflow-hidden">
+            <!-- Floating Elements -->
+            <div class="absolute top-20 left-10 w-20 h-20 bg-white/10 rounded-full floating-animation"></div>
+            <div class="absolute bottom-20 right-10 w-32 h-32 bg-white/10 rounded-full floating-animation" style="animation-delay: -2s;"></div>
+            <div class="absolute top-1/2 right-20 w-16 h-16 bg-white/10 rounded-full floating-animation" style="animation-delay: -4s;"></div>
+            
+            <div class="container mx-auto px-4 text-center text-white relative z-10">
+                <div class="fade-in">
+                    <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                        会社の<span class="text-yellow-300">磨き屋</span>
+                    </h1>
+                    <p class="text-xl md:text-2xl mb-4 text-blue-100">
+                        ～ 本質的な輝きを見つける経営診断 ～
+                    </p>
+                    <p class="text-lg mb-8 text-blue-200 max-w-3xl mx-auto leading-relaxed">
+                        あなたの個人的な豊かさから始まり、10年後の理想像を描き、<br>
+                        3年計画で実現するための道筋を見つけます
+                    </p>
+                    
+                    <div class="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-12">
+                        <div class="glass-effect rounded-2xl p-6 transform hover:scale-105 transition-all duration-300">
+                            <div class="text-4xl mb-4">💭</div>
+                            <h3 class="text-lg font-semibold mb-2 text-gray-800">個人の豊かさ発見</h3>
+                            <p class="text-gray-600 text-sm">夢の休暇から理想の一日まで</p>
+                        </div>
+                        <div class="glass-effect rounded-2xl p-6 transform hover:scale-105 transition-all duration-300">
+                            <div class="text-4xl mb-4">🔍</div>
+                            <h3 class="text-lg font-semibold mb-2 text-gray-800">21項目の現状分析</h3>
+                            <p class="text-gray-600 text-sm">GPTによる深い洞察と提案</p>
+                        </div>
+                        <div class="glass-effect rounded-2xl p-6 transform hover:scale-105 transition-all duration-300">
+                            <div class="text-4xl mb-4">🎯</div>
+                            <h3 class="text-lg font-semibold mb-2 text-gray-800">3年計画の策定</h3>
+                            <p class="text-gray-600 text-sm">磨き上げの具体的ロードマップ</p>
+                        </div>
+                    </div>
+                    
+                    <button onclick="startJourney()" class="bg-white text-purple-700 font-bold py-4 px-12 rounded-full text-lg hover:bg-blue-50 transition-all duration-300 transform hover:scale-105 shadow-2xl">
+                        磨き上げの旅を始める
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Step 1: Personal Vision -->
+    <section id="personal-vision" class="section">
+        <div class="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-12">
+            <div class="container mx-auto px-4 max-w-4xl">
+                <!-- Progress Bar -->
+                <div class="mb-12">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-sm font-medium text-gray-600">磨き上げの進捗</span>
+                        <span id="progress-text-1" class="text-sm font-medium text-purple-600">第1章 / 4章</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        <div class="progress-gradient h-3 rounded-full transition-all duration-500" style="width: 25%"></div>
+                    </div>
+                </div>
+
+                <div class="step-card active glass-effect rounded-3xl p-8 md:p-12 shadow-2xl">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="text-2xl">💭</span>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">第一章：未来を描けない男</h2>
+                        <p class="text-gray-600 text-lg">まず、会社のことは少し忘れて、社長ご自身の「豊かさ」について教えてください</p>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div>
+                            <label class="block text-lg font-semibold text-gray-700 mb-3">
+                                💎 もし時間とお金に制限がなければ、どんな「夢の休暇」を過ごしたいですか？
+                            </label>
+                            <textarea id="dreamVacation" rows="3" class="w-full p-4 border-2 border-gray-200 rounded-xl input-field text-gray-700 placeholder-gray-400" placeholder="例：北海道で一週間フライフィッシングをして、温泉で家族とゆっくり過ごしたい"></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-lg font-semibold text-gray-700 mb-3">
+                                🌅 あなたの「完璧な一日」はどのようなものですか？
+                            </label>
+                            <textarea id="perfectDay" rows="3" class="w-full p-4 border-2 border-gray-200 rounded-xl input-field text-gray-700 placeholder-gray-400" placeholder="例：朝は散歩、昼は好きな仕事、夜は家族と温かい夕食"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-lg font-semibold text-gray-700 mb-3">
+                                🎨 どんな新しい趣味に挑戦してみたいですか？
+                            </label>
+                            <textarea id="newHobby" rows="2" class="w-full p-4 border-2 border-gray-200 rounded-xl input-field text-gray-700 placeholder-gray-400" placeholder="例：陶芸、写真、ゴルフ、楽器演奏など"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-lg font-semibold text-gray-700 mb-3">
+                                ✨ 過去に感じた最も幸せだった瞬間はいつでしたか？
+                            </label>
+                            <textarea id="happyMoment" rows="2" class="w-full p-4 border-2 border-gray-200 rounded-xl input-field text-gray-700 placeholder-gray-400" placeholder="例：子供の成長を感じた瞬間、大きな仕事を成功させた時など"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-10">
+                        <button onclick="nextSection('future-vision')" class="bg-gradient-to-r from-purple-500 to-blue-500 text-white font-bold py-4 px-10 rounded-full text-lg hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                            10年後の理想像へ
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Step 2: Future Vision -->
+    <section id="future-vision" class="section">
+        <div class="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 py-12">
+            <div class="container mx-auto px-4 max-w-4xl">
+                <!-- Progress Bar -->
+                <div class="mb-12">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-sm font-medium text-gray-600">磨き上げの進捗</span>
+                        <span class="text-sm font-medium text-purple-600">第2章 / 4章</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        <div class="progress-gradient h-3 rounded-full transition-all duration-500" style="width: 50%"></div>
+                    </div>
+                </div>
+
+                <div class="step-card active glass-effect rounded-3xl p-8 md:p-12 shadow-2xl">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="text-2xl">🌟</span>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">10年後・20年後の理想像を描く</h2>
+                        <p class="text-gray-600 text-lg">個人の豊かさを実現するため、会社はどう進化する必要がありますか？</p>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div>
+                            <label class="block text-lg font-semibold text-gray-700 mb-3">
+                                🏢 10年後、あなたの事業が理想的な形になっているとしたら、それはどのような姿ですか？
+                            </label>
+                            <textarea id="businessVision10" rows="3" class="w-full p-4 border-2 border-gray-200 rounded-xl input-field text-gray-700 placeholder-gray-400" placeholder="例：地域社会に密着したサステナブルなビジネスとして、地域の人々に価値を提供している"></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-lg font-semibold text-gray-700 mb-3">
+                                ⚡ 20年後に革新的なことを成し遂げているとしたら、それはどのようなことですか？
+                            </label>
+                            <textarea id="innovation20" rows="3" class="w-full p-4 border-2 border-gray-200 rounded-xl input-field text-gray-700 placeholder-gray-400" placeholder="例：業界標準を変える新技術の開発、地域社会への大きな貢献など"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-lg font-semibold text-gray-700 mb-3">
+                                👥 夢を実現するための理想的なチームはどのような人材で構成されていますか？
+                            </label>
+                            <textarea id="idealTeam" rows="2" class="w-full p-4 border-2 border-gray-200 rounded-xl input-field text-gray-700 placeholder-gray-400" placeholder="例：創造性豊かで情熱的な人材、互いに刺激を与え合える多様な背景を持つ人々"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-lg font-semibold text-gray-700 mb-3">
+                                🌱 10年後、あなた自身はどのように成長していると思いますか？
+                            </label>
+                            <textarea id="personalGrowth" rows="2" class="w-full p-4 border-2 border-gray-200 rounded-xl input-field text-gray-700 placeholder-gray-400" placeholder="例：経営スキルと人材育成能力を高め、より自立したチームを構築している"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between mt-10">
+                        <button onclick="prevSection('personal-vision')" class="bg-gray-300 text-gray-700 font-bold py-4 px-8 rounded-full text-lg hover:bg-gray-400 transition-all duration-300">
+                            戻る
+                        </button>
+                        <button onclick="nextSection('current-analysis')" class="bg-gradient-to-r from-green-500 to-blue-500 text-white font-bold py-4 px-10 rounded-full text-lg hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                            現状分析へ
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Step 3: Current Analysis -->
+    <section id="current-analysis" class="section">
+        <div class="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 py-12">
+            <div class="container mx-auto px-4 max-w-6xl">
+                <!-- Progress Bar -->
+                <div class="mb-12">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-sm font-medium text-gray-600">磨き上げの進捗</span>
+                        <span class="text-sm font-medium text-purple-600">第3章 / 4章</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        <div class="progress-gradient h-3 rounded-full transition-all duration-500" style="width: 75%"></div>
+                    </div>
+                </div>
+
+                <div class="step-card active glass-effect rounded-3xl p-8 md:p-12 shadow-2xl">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="text-2xl">🔍</span>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">第二章：最初のひと磨き</h2>
+                        <p class="text-gray-600 text-lg">現在の経営状況を21の視点で詳しく分析します</p>
+                    </div>
+                    
+                    <!-- Analysis Categories -->
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <!-- Basic Business Info -->
+                        <div class="analysis-card rounded-2xl p-6">
+                            <h3 class="text-xl font-bold mb-4 text-purple-700">基本情報</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">事業内容</label>
+                                    <input type="text" id="businessType" class="w-full p-3 border border-gray-300 rounded-lg input-field" placeholder="例：金属加工業">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">年間売上高</label>
+                                    <input type="text" id="annualSales" class="w-full p-3 border border-gray-300 rounded-lg input-field" placeholder="例：5000万円">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">利益率</label>
+                                    <input type="text" id="profitRate" class="w-full p-3 border border-gray-300 rounded-lg input-field" placeholder="例：15%">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">従業員構成</label>
+                                    <input type="text" id="employees" class="w-full p-3 border border-gray-300 rounded-lg input-field" placeholder="例：フルタイム10名、パート5名">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Market & Strategy -->
+                        <div class="analysis-card rounded-2xl p-6">
+                            <h3 class="text-xl font-bold mb-4 text-purple-700">市場・戦略</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">主要顧客層</label>
+                                    <input type="text" id="customers" class="w-full p-3 border border-gray-300 rounded-lg input-field" placeholder="例：地域の住民と近隣企業">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">主要競合</label>
+                                    <input type="text" id="competitors" class="w-full p-3 border border-gray-300 rounded-lg input-field" placeholder="例：同規模の同業他社">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">販売戦略</label>
+                                    <input type="text" id="salesStrategy" class="w-full p-3 border border-gray-300 rounded-lg input-field" placeholder="例：SNS活用と地域イベント参加">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">現在の経営課題</label>
+                                    <textarea id="challenges" rows="2" class="w-full p-3 border border-gray-300 rounded-lg input-field" placeholder="例：新規顧客獲得と従業員教育"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4 Pillars Assessment -->
+                    <div class="mt-8">
+                        <h3 class="text-xl font-bold mb-6 text-center text-gray-800">4つの柱による現状評価</h3>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-white/50 rounded-2xl p-6">
+                                <h4 class="text-lg font-semibold mb-4 flex items-center">
+                                    <span class="text-2xl mr-3">🏗️</span>
+                                    経営の設計図
+                                </h4>
+                                <p class="text-sm text-gray-600 mb-4">属人経営からの脱却度合い</p>
+                                <input type="range" id="pillar1" min="0" max="10" value="3" class="w-full h-3 rounded-lg appearance-none cursor-pointer bg-gradient-to-r from-red-300 to-green-300" oninput="updateValue(1, this.value)">
+                                <div class="flex justify-between text-xs text-gray-500 mt-2">
+                                    <span>属人的</span>
+                                    <span id="value1" class="font-semibold">3</span>
+                                    <span>仕組み化済</span>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white/50 rounded-2xl p-6">
+                                <h4 class="text-lg font-semibold mb-4 flex items-center">
+                                    <span class="text-2xl mr-3">👥</span>
+                                    人的資本活性化
+                                </h4>
+                                <p class="text-sm text-gray-600 mb-4">人への投資とスキル開発</p>
+                                <input type="range" id="pillar2" min="0" max="10" value="3" class="w-full h-3 rounded-lg appearance-none cursor-pointer bg-gradient-to-r from-red-300 to-green-300" oninput="updateValue(2, this.value)">
+                                <div class="flex justify-between text-xs text-gray-500 mt-2">
+                                    <span>未整備</span>
+                                    <span id="value2" class="font-semibold">3</span>
+                                    <span>充実</span>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white/50 rounded-2xl p-6">
+                                <h4 class="text-lg font-semibold mb-4 flex items-center">
+                                    <span class="text-2xl mr-3">🤖</span>
+                                    AI戦略的活用
+                                </h4>
+                                <p class="text-sm text-gray-600 mb-4">生産性向上のためのAI導入</p>
+                                <input type="range" id="pillar3" min="0" max="10" value="3" class="w-full h-3 rounded-lg appearance-none cursor-pointer bg-gradient-to-r from-red-300 to-green-300" oninput="updateValue(3, this.value)">
+                                <div class="flex justify-between text-xs text-gray-500 mt-2">
+                                    <span>未導入</span>
+                                    <span id="value3" class="font-semibold">3</span>
+                                    <span>高度活用</span>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white/50 rounded-2xl p-6">
+                                <h4 class="text-lg font-semibold mb-4 flex items-center">
+                                    <span class="text-2xl mr-3">🤝</span>
+                                    計画的事業承継
+                                </h4>
+                                <p class="text-sm text-gray-600 mb-4">未来へつなぐ準備の進行度</p>
+                                <input type="range" id="pillar4" min="0" max="10" value="3" class="w-full h-3 rounded-lg appearance-none cursor-pointer bg-gradient-to-r from-red-300 to-green-300" oninput="updateValue(4, this.value)">
+                                <div class="flex justify-between text-xs text-gray-500 mt-2">
+                                    <span>未着手</span>
+                                    <span id="value4" class="font-semibold">3</span>
+                                    <span>計画済</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between mt-10">
+                        <button onclick="prevSection('future-vision')" class="bg-gray-300 text-gray-700 font-bold py-4 px-8 rounded-full text-lg hover:bg-gray-400 transition-all duration-300">
+                            戻る
+                        </button>
+                        <button onclick="generateAnalysis()" class="bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold py-4 px-10 rounded-full text-lg hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                            磨き上げプランを作成
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section id="results" class="section">
+        <div class="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 py-12">
+            <div class="container mx-auto px-4 max-w-7xl">
+                <!-- Progress Bar -->
+                <div class="mb-12">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-sm font-medium text-gray-600">磨き上げの進捗</span>
+                        <span class="text-sm font-medium text-purple-600">第4章 完了</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        <div class="progress-gradient h-3 rounded-full transition-all duration-500" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <div class="text-center mb-12 fade-in">
+                    <div class="w-20 h-20 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <span class="text-3xl">✨</span>
+                    </div>
+                    <h1 class="text-4xl font-bold text-gray-800 mb-4">第三章：輝き始める現場</h1>
+                    <p class="text-xl text-gray-600">あなたの会社の磨き上げプランが完成しました</p>
+                </div>
+
+                <div class="grid lg:grid-cols-3 gap-8">
+                    <!-- Vision Summary -->
+                    <div class="lg:col-span-1">
+                        <div class="glass-effect rounded-3xl p-6 shadow-2xl mb-6">
+                            <h2 class="text-2xl font-bold mb-4 text-gray-800 text-center">理想像</h2>
+                            <div id="visionSummary" class="space-y-4"></div>
+                        </div>
+
+                        <div class="glass-effect rounded-3xl p-6 shadow-2xl">
+                            <h2 class="text-2xl font-bold mb-4 text-gray-800 text-center">現状バランス</h2>
+                            <div class="chart-container">
+                                <canvas id="resultsChart"></canvas>
+                            </div>
+                            <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
+                                <div class="bg-blue-50 rounded-lg p-3 text-center">
+                                    <div class="font-semibold text-blue-700">強み</div>
+                                    <div id="strongPoint" class="text-lg font-bold text-blue-800">-</div>
+                                </div>
+                                <div class="bg-orange-50 rounded-lg p-3 text-center">
+                                    <div class="font-semibold text-orange-700">改善ポイント</div>
+                                    <div id="weakPoint" class="text-lg font-bold text-orange-800">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Plan -->
+                    <div class="lg:col-span-2">
+                        <div class="glass-effect rounded-3xl p-8 shadow-2xl">
+                            <h2 class="text-2xl font-bold mb-6 text-gray-800">3年間の磨き上げロードマップ</h2>
+                            
+                            <div class="milestone-timeline" id="roadmap">
+                                <!-- Roadmap items will be inserted here -->
+                            </div>
+
+                            <div class="mt-8">
+                                <h3 class="text-xl font-bold mb-4 text-gray-800">今すぐ始められる「最初のひと磨き」</h3>
+                                <div id="immediateActions" class="space-y-4">
+                                    <!-- Immediate actions will be inserted here -->
+                                </div>
+                            </div>
+
+                            <div class="mt-8">
+                                <h3 class="text-xl font-bold mb-4 text-gray-800">GPTからの経営アドバイス</h3>
+                                <div id="gptAdvice" class="bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl p-6 border-l-4 border-purple-500">
+                                    <!-- GPT advice will be inserted here -->
+                                </div>
+                            </div>
+                            
+                            <div class="mt-8 flex gap-4">
+                                <button onclick="downloadPlan()" class="flex-1 bg-gradient-to-r from-green-500 to-blue-500 text-white font-bold py-3 px-6 rounded-xl hover:shadow-lg transition-all duration-300">
+                                    📊 プランをダウンロード
+                                </button>
+                                <button onclick="scheduleConsultation()" class="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold py-3 px-6 rounded-xl hover:shadow-lg transition-all duration-300">
+                                    💬 専門家との相談予約
+                                </button>
+                                <button onclick="restartJourney()" class="flex-1 bg-gray-300 text-gray-700 font-bold py-3 px-6 rounded-xl hover:bg-gray-400 transition-all duration-300">
+                                    🔄 再診断
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        let currentSection = 'hero';
+        let chart = null;
+        
+        const actionPlanData = {
+            pillar1: {
+                title: "🏗️ 経営の設計図構築",
+                shortTerm: "業務プロセスの見える化とマニュアル作成",
+                mediumTerm: "データドリブン経営システムの構築",
+                longTerm: "AI活用による戦略的意思決定の仕組み化",
+                immediate: "まず3つの重要業務の手順書を作成し、週次で重要指標をExcelで管理する習慣を始めましょう"
+            },
+            pillar2: {
+                title: "👥 人的資本活性化",
+                shortTerm: "1on1ミーティングと技術継承プログラム開始",
+                mediumTerm: "公正な評価制度と成長支援体制の構築",
+                longTerm: "自立的な学習文化と多様なキャリアパスの確立",
+                immediate: "週1回30分の「技術継承タイム」を設け、ベテラン社員が若手に一つずつ技術を教える場を作りましょう"
+            },
+            pillar3: {
+                title: "🤖 AI戦略的活用",
+                shortTerm: "定型業務のAI自動化から開始",
+                mediumTerm: "データ分析と意思決定支援への展開",
+                longTerm: "AI統合による競争優位性の確立",
+                immediate: "ChatGPTを使って報告書や提案書の作成を自動化し、まずは月10時間の業務時間短縮を目指しましょう"
+            },
+            pillar4: {
+                title: "🤝 計画的事業承継",
+                shortTerm: "企業価値の見える化と承継準備開始",
+                mediumTerm: "後継者育成と組織体制の整備",
+                longTerm: "円滑な承継と新体制での持続成長",
+                immediate: "地元の事業承継支援センターに相談し、現在の企業価値を客観的に把握することから始めましょう"
+            }
+        };
+
+        function startJourney() {
+            showSection('personal-vision');
+        }
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+            currentSection = sectionId;
+            
+            // Smooth scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function nextSection(sectionId) {
+            showSection(sectionId);
+        }
+
+        function prevSection(sectionId) {
+            showSection(sectionId);
+        }
+
+        function updateValue(pillar, value) {
+            document.getElementById(`value${pillar}`).textContent = value;
+        }
+
+        function generateAnalysis() {
+            showSection('results');
+            generateChart();
+            generateVisionSummary();
+            generateRoadmap();
+            generateGPTAdvice();
+        }
+
+        function generateChart() {
+            const ctx = document.getElementById('resultsChart').getContext('2d');
+            
+            if (chart) {
+                chart.destroy();
+            }
+
+            const scores = {
+                pillar1: parseInt(document.getElementById('pillar1').value),
+                pillar2: parseInt(document.getElementById('pillar2').value),
+                pillar3: parseInt(document.getElementById('pillar3').value),
+                pillar4: parseInt(document.getElementById('pillar4').value)
+            };
+
+            const data = {
+                labels: ['経営の設計図', '人的資本', 'AI活用', '事業承継'],
+                datasets: [{
+                    label: '現状スコア',
+                    data: [scores.pillar1 * 10, scores.pillar2 * 10, scores.pillar3 * 10, scores.pillar4 * 10],
+                    fill: true,
+                    backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                    borderColor: 'rgb(102, 126, 234)',
+                    borderWidth: 3,
+                    pointBackgroundColor: 'rgb(102, 126, 234)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6
+                }]
+            };
+
+            chart = new Chart(ctx, {
+                type: 'radar',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    elements: {
+                        line: {
+                            borderWidth: 3
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: true,
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                            pointLabels: {
+                                font: {
+                                    size: 12,
+                                    weight: '500'
+                                }
+                            },
+                            ticks: {
+                                backdropColor: 'rgba(255, 255, 255, 0.9)',
+                                stepSize: 25
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Update score summaries
+            const scoreValues = Object.values(scores);
+            const highest = Math.max(...scoreValues);
+            const lowest = Math.min(...scoreValues);
+            
+            const pillars = ['経営設計図', '人的資本', 'AI活用', '事業承継'];
+            const highestIndex = scoreValues.indexOf(highest);
+            const lowestIndex = scoreValues.indexOf(lowest);
+            
+            document.getElementById('strongPoint').textContent = pillars[highestIndex];
+            document.getElementById('weakPoint').textContent = pillars[lowestIndex];
+        }
+
+        function generateVisionSummary() {
+            const dreamVacation = document.getElementById('dreamVacation').value || '入力なし';
+            const perfectDay = document.getElementById('perfectDay').value || '入力なし';
+            const businessVision = document.getElementById('businessVision10').value || '入力なし';
+            
+            const summary = `
+                <div class="space-y-3">
+                    <div class="bg-blue-50 rounded-lg p-3">
+                        <h4 class="font-semibold text-blue-700 text-sm">夢の休暇</h4>
+                        <p class="text-gray-700 text-sm">${dreamVacation.substring(0, 100)}...</p>
+                    </div>
+                    <div class="bg-green-50 rounded-lg p-3">
+                        <h4 class="font-semibold text-green-700 text-sm">完璧な一日</h4>
+                        <p class="text-gray-700 text-sm">${perfectDay.substring(0, 100)}...</p>
+                    </div>
+                    <div class="bg-purple-50 rounded-lg p-3">
+                        <h4 class="font-semibold text-purple-700 text-sm">10年後のビジョン</h4>
+                        <p class="text-gray-700 text-sm">${businessVision.substring(0, 100)}...</p>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('visionSummary').innerHTML = summary;
+        }
+
+        function generateRoadmap() {
+            const scores = {
+                pillar1: parseInt(document.getElementById('pillar1').value),
+                pillar2: parseInt(document.getElementById('pillar2').value),
+                pillar3: parseInt(document.getElementById('pillar3').value),
+                pillar4: parseInt(document.getElementById('pillar4').value)
+            };
+
+            // Sort pillars by score (lowest first for priority)
+            const sortedPillars = Object.entries(scores)
+                .sort(([,a], [,b]) => a - b)
+                .slice(0, 2); // Top 2 priorities
+
+            let roadmapHTML = '';
+            let immediateHTML = '';
+
+            sortedPillars.forEach(([pillarKey, score], index) => {
+                const data = actionPlanData[pillarKey];
+                const year = index + 1;
+                const priorityClass = index === 0 ? 'priority-high' : 'priority-medium';
+                
+                roadmapHTML += `
+                    <div class="milestone-item">
+                        <div class="${priorityClass} rounded-xl p-6">
+                            <div class="flex justify-between items-center mb-3">
+                                <h4 class="text-lg font-bold">${data.title}</h4>
+                                <span class="text-sm font-medium ${index === 0 ? 'text-red-600' : 'text-blue-600'}">
+                                    ${index === 0 ? '最優先' : '次優先'}
+                                </span>
+                            </div>
+                            <div class="space-y-2 text-sm">
+                                <p><strong>1年目：</strong>${data.shortTerm}</p>
+                                <p><strong>2年目：</strong>${data.mediumTerm}</p>
+                                <p><strong>3年目：</strong>${data.longTerm}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                if (index < 2) {
+                    immediateHTML += `
+                        <div class="recommendation-item rounded-xl p-4">
+                            <h4 class="font-bold text-orange-700 mb-2">${data.title}</h4>
+                            <p class="text-gray-700 text-sm">${data.immediate}</p>
+                        </div>
+                    `;
+                }
+            });
+
+            document.getElementById('roadmap').innerHTML = roadmapHTML;
+            document.getElementById('immediateActions').innerHTML = immediateHTML;
+        }
+
+        function generateGPTAdvice() {
+            const businessType = document.getElementById('businessType').value || '製造業';
+            const challenges = document.getElementById('challenges').value || '一般的な課題';
+            
+            const advice = `
+                <h4 class="font-bold text-purple-700 mb-3">🤖 AIコンサルタントからのアドバイス</h4>
+                <p class="text-gray-700 mb-4">
+                    ${businessType}において「${challenges}」を解決するためには、段階的なアプローチが重要です。
+                    まず「人」を中心とした基盤づくりから始め、徐々にテクノロジーを活用した効率化を進めることをお勧めします。
+                </p>
+                <div class="bg-white rounded-lg p-4">
+                    <h5 class="font-semibold mb-2">重要なポイント：</h5>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• 小さく始めて段階的に拡大する「スモールスタート」戦略</li>
+                        <li>• 社員の巻き込みと合意形成を重視した変革プロセス</li>
+                        <li>• 3ヶ月ごとの振り返りと計画調整による柔軟な推進</li>
+                        <li>• 外部専門家との連携による客観的な視点の導入</li>
+                    </ul>
+                </div>
+            `;
+            
+            document.getElementById('gptAdvice').innerHTML = advice;
+        }
+
+        function downloadPlan() {
+            window.print();
+        }
+
+        function scheduleConsultation() {
+            alert('専門家との相談予約機能は準備中です。しばらくお待ちください。');
+        }
+
+        function restartJourney() {
+            // Reset all inputs
+            document.querySelectorAll('input, textarea').forEach(input => {
+                if (input.type === 'range') {
+                    input.value = 3;
+                } else {
+                    input.value = '';
+                }
+            });
+            
+            // Reset value displays
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`value${i}`).textContent = '3';
+            }
+
+            showSection('hero');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Any initialization code here
+        });
+    </script>
+</body>
+</html>
